@@ -22,14 +22,14 @@ public final class SQLiteDatabase {
         }
     }
 
-    public var path: String { _path }
+    public private (set) var path: String // { _path }
     internal var sqliteConnection: OpaquePointer { sync { _connection } }
 
     public var hasOpenTransactions: Bool { return _transactionCount != 0 }
     private var _transactionCount = 0
 
     private var _connection: OpaquePointer
-    private let _path: String
+//    private let _path: String
     private var _isOpen: Bool
 
     internal var sqliteVersion: SQLiteVersion { _sqliteVersion }
@@ -74,27 +74,72 @@ public final class SQLiteDatabase {
         return db
     }
 
-    public init(path: String = ":memory:") throws {
-        _connection = try SQLiteDatabase.open(at: path)
+    public init(path: String = ":memory:", create: Bool = true) throws {
+        
+        // let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX
+        var flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX
+        if create { flags |= SQLITE_OPEN_CREATE }
+        _connection = try SQLiteDatabase.open(at: path, flags: flags)
         _isOpen = true
-        _path = path
+        self.path = path
         _sqliteVersion = try getSQLiteVersion()
         try checkIsSQLiteVersionSupported()
         _changePublisher = SQLiteDatabaseChangePublisher(database: self)
     }
 
+    // jmj
+    /// Creates a read-only database from a file.
+    ///
+    /// - parameter path: The location of the SQLite database.
+    ///
+    /// - throws: An error if the database could not be created.
+    public init(readingFrom path: String) throws {
+        
+        let flags = SQLITE_OPEN_FULLMUTEX | SQLITE_OPEN_READONLY
+        _connection = try SQLiteDatabase.open(at: path, flags: flags)
+        _isOpen = true
+        self.path = path
+        _sqliteVersion = try getSQLiteVersion()
+        try checkIsSQLiteVersionSupported()
+        _changePublisher = SQLiteDatabaseChangePublisher(database: self)
+    }
+    
+    /// Creates a database from a file.
+    ///
+    /// - parameter url: The location of the SQLite database.
+    /// - parameter create: Whether to create the database if it doesn't exist.
+    ///
+    /// - throws: An error if the database could not be created.
+//    public init(url: URL, create: Bool = true) throws {
+//
+////        try url.withUnsafeFileSystemRepresentation { path in
+//        let path = url.path
+//            var flags = SQLITE_OPEN_READWRITE
+//            if create {
+//                flags |= SQLITE_OPEN_CREATE
+//            }
+//            _connection = try SQLiteDatabase.open(at: path, flags: flags)
+//            _isOpen = true
+//            path = path
+//            _sqliteVersion = try getSQLiteVersion()
+//            try checkIsSQLiteVersionSupported()
+//            _changePublisher = SQLiteDatabaseChangePublisher(database: self)
+//    }
+    // jmj - end
+    
     deinit {
         try? close()
     }
 
-    public func reopen() throws {
-        try sync {
-            guard !_isOpen else { return }
-            _connection = try SQLiteDatabase.open(at: _path)
-            _isOpen = true
-            _changePublisher.open()
-        }
-    }
+    // jmj TBD: Add flags as var so they can be reused
+//    public func reopen() throws {
+//        try sync {
+//            guard !_isOpen else { return }
+//            _connection = try SQLiteDatabase.open(at: path)
+//            _isOpen = true
+//            _changePublisher.open()
+//        }
+//    }
 
     public func close() throws {
         try sync {
@@ -573,9 +618,13 @@ extension SQLiteDatabase {
 }
 
 extension SQLiteDatabase {
-    private class func open(at path: String) throws -> OpaquePointer {
+    
+    // jmj added explicit flags as parameter
+    
+    private class func open(at path: String, flags: Int32) throws -> OpaquePointer {
         var optionalConnection: OpaquePointer?
-        let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX
+        // jmj
+//        let flags = SQLITE_OPEN_CREATE | SQLITE_OPEN_READWRITE | SQLITE_OPEN_FULLMUTEX
         var result = sqlite3_open_v2(path, &optionalConnection, flags, nil)
 
         guard SQLITE_OK == result else {
@@ -589,9 +638,11 @@ extension SQLiteDatabase {
             throw error
         }
 
-        result = sqlite3_exec(connection, "PRAGMA journal_mode=WAL;", nil, nil, nil)
-        guard result == SQLITE_OK else { throw SQLiteError.onEnableWAL(result) }
-
+        // jmj - if NOT read_only and NOT in memory
+        if 0 != (flags & SQLITE_OPEN_READWRITE) {
+            result = sqlite3_exec(connection, "PRAGMA journal_mode=WAL;", nil, nil, nil)
+            guard result == SQLITE_OK else { throw SQLiteError.onEnableWAL(result) }
+        }
         return connection
     }
 
