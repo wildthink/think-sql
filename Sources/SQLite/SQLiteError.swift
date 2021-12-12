@@ -12,6 +12,7 @@ public enum SQLiteError: Error, Equatable {
     case onUnsupportedSQLiteVersion(Int, Int, Int)
     case onClose(Int32)
     case onPrepareStatement(Int32, String)
+    case onPrepareFunction(Int32, String) // jmj
     case onGetParameterIndex(String)
     case onBindParameter(Int32, Int32, SQLiteValue)
     case onStep(Int32, String)
@@ -53,6 +54,8 @@ extension SQLiteError {
         case let .onClose(code):
             return code
         case let .onPrepareStatement(code, _):
+            return code
+        case let .onPrepareFunction(code, _):
             return code
         case .onGetParameterIndex:
             return nil
@@ -129,6 +132,8 @@ extension SQLiteError: CustomStringConvertible {
             return "Could not close database: \(string(for: code))"
         case .onPrepareStatement(let code, let sql):
             return "Could not prepare statement for '\(sql)': \(string(for: code))"
+        case .onPrepareFunction(let code, let sql):
+            return "Could not prepare function for '\(sql)': \(string(for: code))"
         case .onGetParameterIndex(let parameterName):
             return "Could not get index for '\(parameterName)'"
         case .onBindParameter(let code, let index, let value):

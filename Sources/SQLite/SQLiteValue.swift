@@ -12,6 +12,33 @@ public enum SQLiteValue: Hashable {
     case text(String)
 }
 
+// jmj
+/// An `sqlite3_value *` object.
+///
+/// - seealso: [Obtaining SQL Values](https://sqlite.org/c3ref/value_blob.html)
+public extension SQLiteValue {
+    /// Creates an instance containing `value`.
+    ///
+    /// - parameter value: An `sqlite3_value *` object.
+    init(sqliteValue value: OpaquePointer) {
+        let type = sqlite3_value_type(value)
+        switch type {
+            case SQLITE_INTEGER:
+                self = .integer(sqlite3_value_int64(value))
+            case SQLITE_FLOAT:
+                self = .double(sqlite3_value_double(value))
+            case SQLITE_TEXT:
+                self = .text(String(cString: sqlite3_value_text(value)))
+            case SQLITE_BLOB:
+                self = .data(Data(bytes: sqlite3_value_blob(value), count: Int(sqlite3_value_bytes(value))))
+            case SQLITE_NULL:
+                self = .null
+            default:
+                fatalError("Unknown SQLite value type \(type) encountered")
+        }
+    }
+}
+
 extension SQLiteValue {
     public var boolValue: Bool? {
         guard case .integer(let int) = self else { return nil }
