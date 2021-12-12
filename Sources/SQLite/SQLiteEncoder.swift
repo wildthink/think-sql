@@ -37,7 +37,7 @@ public final class SQLiteEncoder {
     }
 }
 
-private class _SQLiteEncoder: Swift.Encoder {
+private struct _SQLiteEncoder: Swift.Encoder {
     var codingPath: Array<CodingKey> = []
     var userInfo: [CodingUserInfoKey : Any] = [:]
 

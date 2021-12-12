@@ -51,23 +51,78 @@ extension SQLiteValue {
     }
 
     public var doubleValue: Double? {
-        guard case .double(let double) = self else { return nil }
-        return double
+        // jmj
+        switch self {
+            case .double(let value):
+                return value
+            case .integer(let value):
+                return Double(value)
+            case .text(let value):
+                return Double(value)
+            default:
+                return nil
+        }
+//        guard case .double(let double) = self else { return nil }
+//        return double
     }
 
     public var intValue: Int? {
-        guard case .integer(let int) = self else { return nil }
-        return Int(int)
+        // jmj
+        switch self {
+            case .double(let value):
+                return Int(value)
+            case .integer(let value):
+                return Int(value)
+            case .text(let value):
+                return Int(value)
+            default:
+                return nil
+        }
+//        guard case .integer(let int) = self else { return nil }
+//        return Int(int)
     }
 
     public var int64Value: Int64? {
-        guard case .integer(let int) = self else { return nil }
-        return int
+        // jmj
+        switch self {
+            case .double(let value):
+                return Int64(value)
+            case .integer(let value):
+                return Int64(value)
+            case .text(let value):
+                return Int64(value)
+            default:
+                return nil
+        }
+//        guard case .integer(let int) = self else { return nil }
+//        return int
     }
 
     public var stringValue: String? {
-        guard case .text(let string) = self else { return nil }
-        return string
+        // jmj
+        switch self {
+            case .double(let value):
+                return String(value)
+            case .integer(let value):
+                return String(value)
+            case .text(let value):
+                return value
+            default:
+                return nil
+        }
+//        guard case .text(let string) = self else { return nil }
+//        return string
+    }
+    
+    // jmj
+    public var anyValue: Any? {
+        switch self {
+            case .data(let value): return value
+            case .double(let value): return value
+            case .integer(let value): return value
+            case .text(let value): return value
+            case .null: return nil
+        }
     }
 }
 

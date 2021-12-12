@@ -66,7 +66,7 @@ private class _SQLiteDecoder: Swift.Decoder {
     }
 }
 
-private class _KeyedContainer<K: CodingKey>: KeyedDecodingContainerProtocol {
+private struct _KeyedContainer<K: CodingKey>: KeyedDecodingContainerProtocol {
     typealias Key = K
 
     let codingPath: Array<CodingKey> = []
