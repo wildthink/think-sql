@@ -1,0 +1,34 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "swift-atomics",
+        "repositoryURL": "https://github.com/apple/swift-atomics",
+        "state": {
+          "branch": null,
+          "revision": "919eb1d83e02121cdb434c7bfc1f0c66ef17febe",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "Synchronized",
+        "repositoryURL": "https://github.com/shareup/synchronized.git",
+        "state": {
+          "branch": null,
+          "revision": "f01e4a1ee5fbf586d612a8dc0bc068603f6b9450",
+          "version": "3.0.0"
+        }
+      },
+      {
+        "package": "UniqueID",
+        "repositoryURL": "https://github.com/karwa/uniqueid",
+        "state": {
+          "branch": null,
+          "revision": "78bdadaee02ac5a25762f28cf75b46948200970b",
+          "version": "1.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

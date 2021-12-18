@@ -22,4 +22,13 @@ let package = Package(
 )
 ```
 
+### Features
 
+- Supports Combine Publishing and SwiftUI integration
+- Supports Codable types "out-of-the-box"
+- Easy to pick between system and custom Sqlite3 (sqlite.c) library
+- Support multiple embedded database options
+- Schema enabled
+  - Extend Coders with DBValue <-> Type transformers
+  - Entity-Component-System support
+- 
