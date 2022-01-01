@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "SQLite",
             targets: ["SQLite"]),
+        .library(
+            name: "SQLiteKit",
+            targets: ["SQLiteKit"]),
     ],
     dependencies: [
 //        .package(
@@ -26,6 +29,10 @@ let package = Package(
 //            url: "https://github.com/shareup/combine-extensions.git",
 //            from: "4.0.0"
 //        ),
+        .package(
+            url: "https://github.com/Flight-School/AnyCodable",
+            from: "0.6.0"
+        ),
         .package(
             url: "https://github.com/karwa/uniqueid",
             .upToNextMajor(from: "1.0.0")
@@ -41,9 +48,16 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "ThinkSQL",
-            dependencies: ["SQLite", "Pipeline"]),
+            dependencies: [
+                "SQLite", "Pipeline", "AnyCodable",
+                "SQLiteKit",
+                .product(name: "UniqueID", package: "uniqueid")
+        ]),
         .target(
             name: "Pipeline",
+            dependencies: []),
+        .target(
+            name: "SQLiteKit",
             dependencies: []),
         .target(
             name: "SQLite",
